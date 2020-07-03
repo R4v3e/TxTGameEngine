@@ -4,5 +4,5 @@ MainDialogTree Contain example of folders structure.
 
 
 program was made for training.
-Complied on JRE11. May not work in old Java Versions.
+Compiled on JRE11. May not work in old Java Versions.
 
