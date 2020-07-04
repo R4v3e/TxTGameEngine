@@ -1,6 +1,6 @@
 # TxTGameEngine V0.01
-Just simple TxTGame (engine?) without databases.
-MainDialogTree Contain example of folders structure.
+Just simple TxTGame (engine?) without databases. <br/>
+MainDialogTree Contain example of folders structure. <br/>
 
 
 program was made for training.
