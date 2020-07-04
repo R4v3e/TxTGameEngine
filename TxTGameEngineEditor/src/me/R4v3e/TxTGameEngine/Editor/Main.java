@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,8 +21,11 @@ import javax.swing.JTextField;
 
 public class Main implements ActionListener{	
 	
-	static JFrame MainFrame = new JFrame("MainMenu"); 					// Frame for Main Menu Window
-	static JFrame CreateCharacterFrame = new JFrame("CreateCharacter"); // Frame for Character Creating Window
+	static JFrame MainFrame = new JFrame("MainMenu"); 					 // Frame for Main Menu Window
+	static JFrame CreateCharacterFrame = new JFrame("Create Character"); // Frame for Character Creating Window
+	static JFrame CreateDialogFrame = new JFrame("Create Dialog");		 // Frame for Dialog Creating Window
+	
+	static String Save_info;
 	
 	/*
 	 * Main Menu Window
@@ -75,7 +80,7 @@ public class Main implements ActionListener{
 	    option2.addActionListener(new ActionListener(){  	// button action listener (on button2 click event)
 		    public void actionPerformed(ActionEvent e){  
 	                MainFrame.setVisible(false);			// when button 2 clicked set Main Menu to not visible
-	                										// 
+	                CreateDialogFrame.setVisible(true);   	// when button 2 clicked set Dialog Creating Window to visible 
 	        }  
 	    });  
 	    option3.addActionListener(new ActionListener(){ 	// button action listener (on button3 click event)
@@ -239,14 +244,158 @@ public class Main implements ActionListener{
 	 * Crate Dialog Window
 	 */
 	public static void Window_CreateDialog() {
-		// TO DO NEXT
+		
+		JPanel MainPanel = new JPanel();
+				
+		JLabel Title = new JLabel("Create Dialog");
+		JLabel SelectCharacter = new JLabel("Select Character");
+		JLabel Dialog = new JLabel("Dialog: ");
+		JLabel Error = new JLabel("Status", JLabel.CENTER);
+		
+		JTextArea DialogTextArea = new JTextArea();
+		
+		JButton Create = new JButton("Create");
+		JButton Menu = new JButton("Menu");
+		
+		File[] directories = new File("MainDialogTree").listFiles(File::isDirectory);				
+		// create a combo box with the fixed array:
+		JComboBox<File> Characters = new JComboBox<File>(directories);
+		
+		
+		CreateDialogFrame.setBounds(1,1 ,600, 500); 							// x,y,width,height
+		CreateDialogFrame.setBackground(Color.darkGray);						// Background Color
+		CreateDialogFrame.setResizable(false);									// Turn off Resize option
+		CreateDialogFrame.setVisible(false);									// not Visible on start
+		CreateDialogFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		// Default Close operation
+		
+		MainPanel.setBounds(1,1,600,500);		// x,y,width,height
+		MainPanel.setBackground(Color.GRAY);	// Background Color (more important)
+		MainPanel.setVisible(true);				// Visible from start (only when frame is visible)
+		MainPanel.setLayout(null);	
+		
+		// Title Label Settings
+		Title.setBounds(225,10,200,20);			// x,y,width,height
+		Title.setVerticalAlignment(JLabel.TOP);	// Vertical Alignment Top
+		Title.setForeground(Color.WHITE);		// Text color White
+		
+		// Select Character Label Settings
+		SelectCharacter.setBounds(50,57,200,20);			// x,y,width,height
+		SelectCharacter.setVerticalAlignment(JLabel.TOP);	// Vertical Alignment Top
+		SelectCharacter.setForeground(Color.WHITE);		// Text color White	
+		
+		// Dialog Label Settings
+		Dialog.setBounds(50,100,200,20);			// x,y,width,height
+		Dialog.setVerticalAlignment(JLabel.TOP);	// Vertical Alignment Top
+		Dialog.setForeground(Color.WHITE);		// Text color White
+		
+		// Error Label Settings
+		Error.setBounds(0,450,600,50);			// x,y,width,height
+		Error.setVerticalAlignment(JLabel.TOP);	// Vertical Alignment Top
+		Error.setForeground(Color.WHITE);		// Text color White
+		
+		// Description TextArea settings
+		DialogTextArea.setBounds(125,100,425,300);	// x,y,width,height
+		DialogTextArea.setForeground(Color.BLACK);	// Text Color Black
+		
+		Characters.setBounds(200,50,300,30);
+		
+		Create.setBounds(390,420,170,20);
+		Menu.setBounds(50,420,170,20);
+		
+		
+		MainPanel.add(Characters);
+		MainPanel.add(Title);
+		MainPanel.add(SelectCharacter);
+		MainPanel.add(Create);
+		MainPanel.add(Dialog);
+		MainPanel.add(DialogTextArea);
+		MainPanel.add(Menu);
+		MainPanel.add(Error);
+		
+		// Menu Button Action Listener
+				Menu.addActionListener(new ActionListener(){  
+			        public void actionPerformed(ActionEvent e){  
+			                MainFrame.setVisible(true);				// set Main Frame to visible
+			                CreateDialogFrame.setVisible(false);	// set Character Creation Frame to not visible
+			        }  
+			    }); 
+		
+		
+		Create.addActionListener(new ActionListener(){  
+	        public void actionPerformed(ActionEvent e){  
+	        	
+	        	File selected = (File)Characters.getSelectedItem();	   									 // get selected character as file
+	        	String Path = selected.getPath();														 // get Path to selected character 
+	        	Save_info = Path;
+	        	int PathLength = Path.length();															 // get Path length
+	        	File[] ExistedDialogs = new File(selected.getPath()).listFiles(File::isDirectory);		 // get all Directories in selected character path
+	        	int n = ExistedDialogs.length;															 // get number of directories
+	        	int[] DialogsNumbers = new int[n+1];													 // make integer variable for all directories numbers 	
+	        	PathLength = PathLength + 8;															 // add 8 to PathLength cause /Dialog_ is 8 numbers it will allow to take only numbers from dialogs folders
+	        	
+	        	for (int i = 0; i < ExistedDialogs.length; i++) {
+	        		
+	        		String Z;
+	        		String C;
+	        		
+	        		Z = ExistedDialogs[i].getPath();	        		       		
+	        		C = Z.substring(PathLength,Z.length());     // get only numbers from ExistedDialogs cause PathLength will be amount of characters in MainDialogTree/SelectedCharacter/Dialog_
+	        			
+	        		int foo;
+	        		try {
+	        		   foo = Integer.parseInt(C); // try to parse C to integer
+	        		}
+	        		catch (NumberFormatException e2)
+	        		{
+	        		   foo = 0;
+	        		   Error.setText("Can't Parse Int");
+	        		}
+	        		DialogsNumbers[i] = foo;  // add number to DialogsNumbers Array
+	        		
+	        	}
+	        	int max = Arrays.stream(DialogsNumbers).max().getAsInt() + 1; // get max Value from DialogsNumbers Array and add 1
+	        	try {	        		
+					Files.createDirectories(Paths.get(selected.getPath() + "/Dialog_" + max)); 			// try to create next Dialog Folder path/Dialog_Max(1/2/3/4/5/...)
+				} catch (IOException e1) {						
+					 Error.setText("Can't Create Dialog Folder");	
+					return;
+				}    
+	        	// TO DO:
+	        	try {	        		     		
+        	    	File myObj = new File(selected.getPath() + "/Dialog_"+max+"/Dialog.txt"); 						// try to create Dialog.txt for created character
+        	        if (myObj.createNewFile()) {
+        	        	  FileWriter myWriter = new FileWriter(selected.getPath() + "/Dialog_"+max+"/Dialog.txt");	// if description created crate file writer 
+        	        	  myWriter.write(DialogTextArea.getText());													// write Dialog Text Area Text to Dialog.txt
+        	              myWriter.close();  																		// close File Writer
+        	        } 
+        	      } catch (IOException e1) {
+        	    	  Error.setText("Can't Create And Write to Dialog.txt");	
+        	      
+					return;
+        	      }
+	        	 Error.setText("Created: " + selected.getPath() + "/Dialog_"+max + " and Dialog.txt");
+        	     // when no error set Add_Options_To_Created_Dialog_Window_Frame to visible and this to not visible.
+	        }  
+	    }); 
+		
+		CreateDialogFrame.add(MainPanel);		
+	
 	}
+	// TO DO NEXT
+	public static void Add_Options_To_Created_Dialog_Window() {
+		// Use same path as selected during Dialog Creation (its save in Save_info String)
+		
+		// needed option 1, 2, 3 following character and dialog;  
+		// Following character as ComboBox of all characters, dialog as ComboBox of character Dialogs (if possible show Dialog.txt instead of path it will be easier to work with)
+	}
+	
+	
 	
 	public static void main(String[] args) {
 		
 		MainMenu(); 				// start Main Menu
 		Window_CreateCharacter();	// Start Window Create Character
-		
+		Window_CreateDialog();
 	}
 
 	
