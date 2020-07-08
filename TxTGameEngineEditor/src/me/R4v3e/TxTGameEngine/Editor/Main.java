@@ -1,9 +1,13 @@
 package me.R4v3e.TxTGameEngine.Editor;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,12 +25,17 @@ import javax.swing.JTextField;
 
 public class Main implements ActionListener{	
 	
-	static JFrame MainFrame = new JFrame("MainMenu"); 					 // Frame for Main Menu Window
-	static JFrame CreateCharacterFrame = new JFrame("Create Character"); // Frame for Character Creating Window
-	static JFrame CreateDialogFrame = new JFrame("Create Dialog");		 // Frame for Dialog Creating Window
+	static JFrame MainFrame = new JFrame("MainMenu"); 					 	 // Frame for Main Menu Window
+	static JFrame CreateCharacterFrame = new JFrame("Create Character");	 // Frame for Character Creating Window
+	static JFrame CreateDialogFrame = new JFrame("Create Dialog");			 // Frame for Dialog Creating Window
+	static JFrame CreateOptionsForDialogFrame = new JFrame("Create Dialog"); // Frame for Creating Options Window
 	
 	static String Save_info;
+	static int Save_info2;
+	static String html = "<html><body style='width: %1spx'>%1s"; // needed to set up Word Wrap on Dialog
+	static String txt = "";
 	
+	static int option = 1;
 	/*
 	 * Main Menu Window
 	 * */
@@ -42,7 +51,7 @@ public class Main implements ActionListener{
 		JPanel Window = new JPanel(); // set new Panel for Main Menu  
 		
 		// Main Menu Frame settings	
-		MainFrame.setBounds(1,1,240,300); 							// x,y,width,height (px)
+		MainFrame.setBounds(1,1,240,300); 							// x,y,width,height
 		MainFrame.setBackground(Color.darkGray);					// main frame Background Color
 		MainFrame.setResizable(false); 								// turn off Resize option
 		MainFrame.setVisible(true);									// set Visible on start 
@@ -245,29 +254,35 @@ public class Main implements ActionListener{
 	 */
 	public static void Window_CreateDialog() {
 		
-		JPanel MainPanel = new JPanel();
-				
-		JLabel Title = new JLabel("Create Dialog");
-		JLabel SelectCharacter = new JLabel("Select Character");
-		JLabel Dialog = new JLabel("Dialog: ");
-		JLabel Error = new JLabel("Status", JLabel.CENTER);
+		// panel
+		JPanel MainPanel = new JPanel();							// Main Panel
 		
-		JTextArea DialogTextArea = new JTextArea();
+		// Labels
+		JLabel Title = new JLabel("Create Dialog");					// Tile Label 
+		JLabel SelectCharacter = new JLabel("Select Character");	// Select character Label
+		JLabel Dialog = new JLabel("Dialog: ");						// Dialog Label
+		JLabel Error = new JLabel("Status", JLabel.CENTER);			// Error Label
 		
-		JButton Create = new JButton("Create");
-		JButton Menu = new JButton("Menu");
+		// Text Area
+		JTextArea DialogTextArea = new JTextArea();					// Dialog Text Area
 		
+		// Buttons
+		JButton Create = new JButton("Create");						// Create Dialog Button
+		JButton Menu = new JButton("Menu");							// Back to main Menu Button
+		
+		// File array with Characters File 
 		File[] directories = new File("MainDialogTree").listFiles(File::isDirectory);				
+		
 		// create a combo box with the fixed array:
 		JComboBox<File> Characters = new JComboBox<File>(directories);
 		
-		
+		// Frame Settings
 		CreateDialogFrame.setBounds(1,1 ,600, 500); 							// x,y,width,height
 		CreateDialogFrame.setBackground(Color.darkGray);						// Background Color
 		CreateDialogFrame.setResizable(false);									// Turn off Resize option
 		CreateDialogFrame.setVisible(false);									// not Visible on start
 		CreateDialogFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		// Default Close operation
-		
+		// Main Panel Settings
 		MainPanel.setBounds(1,1,600,500);		// x,y,width,height
 		MainPanel.setBackground(Color.GRAY);	// Background Color (more important)
 		MainPanel.setVisible(true);				// Visible from start (only when frame is visible)
@@ -281,12 +296,12 @@ public class Main implements ActionListener{
 		// Select Character Label Settings
 		SelectCharacter.setBounds(50,57,200,20);			// x,y,width,height
 		SelectCharacter.setVerticalAlignment(JLabel.TOP);	// Vertical Alignment Top
-		SelectCharacter.setForeground(Color.WHITE);		// Text color White	
+		SelectCharacter.setForeground(Color.WHITE);			// Text color White	
 		
 		// Dialog Label Settings
 		Dialog.setBounds(50,100,200,20);			// x,y,width,height
 		Dialog.setVerticalAlignment(JLabel.TOP);	// Vertical Alignment Top
-		Dialog.setForeground(Color.WHITE);		// Text color White
+		Dialog.setForeground(Color.WHITE);			// Text color White
 		
 		// Error Label Settings
 		Error.setBounds(0,450,600,50);			// x,y,width,height
@@ -297,20 +312,22 @@ public class Main implements ActionListener{
 		DialogTextArea.setBounds(125,100,425,300);	// x,y,width,height
 		DialogTextArea.setForeground(Color.BLACK);	// Text Color Black
 		
-		Characters.setBounds(200,50,300,30);
+		// Combo Box Settings
+		Characters.setBounds(200,50,300,30);	// x,y,width,height
 		
-		Create.setBounds(390,420,170,20);
-		Menu.setBounds(50,420,170,20);
+		// Buttons Settings
+		Create.setBounds(390,420,170,20);   	// x,y,width,height
+		Menu.setBounds(50,420,170,20);			// x,y,width,height
 		
-		
-		MainPanel.add(Characters);
-		MainPanel.add(Title);
-		MainPanel.add(SelectCharacter);
-		MainPanel.add(Create);
-		MainPanel.add(Dialog);
-		MainPanel.add(DialogTextArea);
-		MainPanel.add(Menu);
-		MainPanel.add(Error);
+		// Add to Create Dialog Window Panel
+		MainPanel.add(Characters);			// add Combo Box
+		MainPanel.add(Title);				// add Title Label
+		MainPanel.add(SelectCharacter);		// add Character Label
+		MainPanel.add(Create);				// add Create Button
+		MainPanel.add(Dialog);				// add Dialog Label
+		MainPanel.add(DialogTextArea);		// add Dialog Text Area
+		MainPanel.add(Menu);				// add Menu Button
+		MainPanel.add(Error);				// add Error/Status Label
 		
 		// Menu Button Action Listener
 				Menu.addActionListener(new ActionListener(){  
@@ -354,6 +371,7 @@ public class Main implements ActionListener{
 	        		
 	        	}
 	        	int max = Arrays.stream(DialogsNumbers).max().getAsInt() + 1; // get max Value from DialogsNumbers Array and add 1
+	        	Save_info2 = max;
 	        	try {	        		
 					Files.createDirectories(Paths.get(selected.getPath() + "/Dialog_" + max)); 			// try to create next Dialog Folder path/Dialog_Max(1/2/3/4/5/...)
 				} catch (IOException e1) {						
@@ -375,6 +393,10 @@ public class Main implements ActionListener{
         	      }
 	        	 Error.setText("Created: " + selected.getPath() + "/Dialog_"+max + " and Dialog.txt");
         	     // when no error set Add_Options_To_Created_Dialog_Window_Frame to visible and this to not visible.
+	        	 	Add_Options_To_Created_Dialog_Window();	
+	        	 	CreateOptionsForDialogFrame.setVisible(true);
+	        		CreateDialogFrame.setVisible(false);
+	        		DialogTextArea.setText("");
 	        }  
 	    }); 
 		
@@ -383,8 +405,367 @@ public class Main implements ActionListener{
 	}
 	// TO DO NEXT
 	public static void Add_Options_To_Created_Dialog_Window() {
-		// Use same path as selected during Dialog Creation (its save in Save_info String)
 		
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		
+		
+		// Use same path as selected during Dialog Creation (its save in Save_info String)
+		JPanel MainPanel = new JPanel();
+	
+		String curentDialog = Save_info.substring(15,Save_info.length());
+		// Labels
+		JLabel Title = new JLabel("Add Options to " + curentDialog + " Dialog", JLabel.CENTER);
+		JLabel Option1 = new JLabel("Option " + option,JLabel.CENTER);
+	
+		JLabel Error = new JLabel();
+		
+		JLabel Option1Text = new JLabel("Option Text: ");
+		JLabel Option1CharacterText = new JLabel("Character: ");
+		JLabel Option1DialogText = new JLabel("Dialog: ");
+		JLabel Option1Dialog = new JLabel();
+		
+		JLabel DialogOption1 = new JLabel();
+		JLabel DialogOption2 = new JLabel();
+		JLabel DialogOption3 = new JLabel();
+		
+		File[] Characters = new File("MainDialogTree").listFiles(File::isDirectory);
+		int n = Characters.length;
+		String[] CharactersNames = new String[n];
+		String name;
+		for(int x = 0; x < n; x++) {
+			
+		name = Characters[x].getPath();
+		name = name.substring(15,name.length());
+			
+			CharactersNames[x] = name; 
+		}
+		
+		JTextField Option1_TextField = new JTextField();
+
+		JComboBox<String> Option1_Character_ComboBox = new JComboBox<String>(CharactersNames);
+
+		
+		JComboBox<String> Option1_CharacterDialog_ComboBox = new JComboBox<String>();
+	
+		String selected = (String)Option1_Character_ComboBox.getSelectedItem();	// you select String you dumb ass   									 
+			
+    	String Path = "MainDialogTree/"+selected+"/";
+    	File[] Dialogs = new File(Path).listFiles(File::isDirectory);
+    	
+    	String[] DialogsNumbers = new String[Dialogs.length];
+    	for(int y = 0; y < Dialogs.length; y++) {
+    		DialogsNumbers[y] = Dialogs[y].getPath().substring(Path.length(), Dialogs[y].getPath().length());
+    	}
+    	
+    	
+    	for(int i = 0; i < DialogsNumbers.length; i++) {
+    		Option1_CharacterDialog_ComboBox.addItem(DialogsNumbers[i]);
+    	}
+		
+		
+		Option1_Character_ComboBox.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {
+		    	Option1_CharacterDialog_ComboBox.removeAllItems();
+		    	String selected = (String)Option1_Character_ComboBox.getSelectedItem();	// you select String you dumb ass   									 
+	       						
+		    	String Path = "MainDialogTree/"+selected+"/";
+		    	File[] Dialogs = new File(Path).listFiles(File::isDirectory);
+		    	
+		    	String[] DialogsNumbers = new String[Dialogs.length];
+		    	for(int y = 0; y < Dialogs.length; y++) {
+		    		DialogsNumbers[y] = Dialogs[y].getPath().substring(Path.length(), Dialogs[y].getPath().length());
+		    	}
+		    	
+		    	
+		    	for(int i = 0; i < DialogsNumbers.length; i++) {
+		    		Option1_CharacterDialog_ComboBox.addItem(DialogsNumbers[i]);
+		    	}		    			    
+		    	
+		    }
+		});
+		
+		
+		
+		
+    	Path = "MainDialogTree/" +Option1_Character_ComboBox.getSelectedItem()+ "/"+Option1_CharacterDialog_ComboBox.getSelectedItem();
+    	int i = 0;
+    	BufferedReader reader;
+		// read Dialog Text
+		try {
+			reader = new BufferedReader(new FileReader(Path+"/Dialog.txt"));
+			String line = reader.readLine();
+			while (line != null) {				
+				
+				txt = txt + line + " ";					
+			
+				line = reader.readLine();
+			}
+			reader.close();
+		} catch (IOException e1) {
+			
+		}
+		Option1Dialog.setText(String.format(html,(int)  dim.getWidth()/2,txt));
+		txt = "";	
+		
+		try {
+			reader = new BufferedReader(new FileReader(Path+"/Option1.txt"));
+			String line = reader.readLine();
+			while (line != null) {				
+				
+				if(i==0)txt = txt + line + " ";					
+				i++;
+				line = reader.readLine();
+			}
+			reader.close();
+		} catch (IOException e1) {
+		
+		}
+		DialogOption1.setText(String.format(html,(int)  dim.getWidth()/2,txt));
+    	txt = "";
+    	i=0;
+    	try {
+			reader = new BufferedReader(new FileReader(Path+"/Option2.txt"));
+			String line = reader.readLine();
+			while (line != null) {				
+				
+				if(i==0)txt = txt + line + " ";					
+				i++;
+				line = reader.readLine();
+			}
+			reader.close();
+		} catch (IOException e1) {
+			
+		}
+		DialogOption2.setText(String.format(html,(int)  dim.getWidth()/2,txt));
+    	txt = "";
+    	i=0;
+    	try {
+			reader = new BufferedReader(new FileReader(Path+"/Option3.txt"));
+			String line = reader.readLine();
+			while (line != null) {				
+				
+				if(i==0)txt = txt + line + " ";					
+				i++;
+				line = reader.readLine();
+			}
+			reader.close();
+		} catch (IOException e1) {
+			
+		}
+		DialogOption3.setText(String.format(html,(int)  dim.getWidth()/2,txt));
+    	txt = "";
+    	i=0;
+		
+		
+		Option1_CharacterDialog_ComboBox.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {
+		    			
+		    	String Path = "MainDialogTree/" +Option1_Character_ComboBox.getSelectedItem()+ "/"+Option1_CharacterDialog_ComboBox.getSelectedItem();
+		    	int i = 0;
+		    	BufferedReader reader;
+				// read Dialog Text
+				try {
+					reader = new BufferedReader(new FileReader(Path+"/Dialog.txt"));
+					String line = reader.readLine();
+					while (line != null) {				
+						
+						txt = txt + line + " ";					
+					
+						line = reader.readLine();
+					}
+					reader.close();
+				} catch (IOException e1) {
+					
+				}
+				Option1Dialog.setText(String.format(html,(int)  dim.getWidth()/2,txt));
+				txt = "";	
+				
+				try {
+					reader = new BufferedReader(new FileReader(Path+"/Option1.txt"));
+					String line = reader.readLine();
+					while (line != null) {				
+						
+						if(i==0)txt = txt + line + " ";					
+						i++;
+						line = reader.readLine();
+					}
+					reader.close();
+				} catch (IOException e1) {
+				
+				}
+				DialogOption1.setText(String.format(html,(int)  dim.getWidth()/2,txt));
+		    	txt = "";
+		    	i=0;
+		    	try {
+					reader = new BufferedReader(new FileReader(Path+"/Option2.txt"));
+					String line = reader.readLine();
+					while (line != null) {				
+						
+						if(i==0)txt = txt + line + " ";					
+						i++;
+						line = reader.readLine();
+					}
+					reader.close();
+				} catch (IOException e1) {
+					
+				}
+				DialogOption2.setText(String.format(html,(int)  dim.getWidth()/2,txt));
+		    	txt = "";
+		    	i=0;
+		    	try {
+					reader = new BufferedReader(new FileReader(Path+"/Option3.txt"));
+					String line = reader.readLine();
+					while (line != null) {				
+						
+						if(i==0)txt = txt + line + " ";					
+						i++;
+						line = reader.readLine();
+					}
+					reader.close();
+				} catch (IOException e1) {
+					
+				}
+				DialogOption3.setText(String.format(html,(int)  dim.getWidth()/2,txt));
+		    	txt = "";
+		    	i=0;
+		    }
+		});
+	
+		
+
+		
+		
+		JButton next = new JButton("Next Option");
+		
+		next.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {		    
+		    	System.out.println(Save_info + "/Dialog_"+Save_info2+"/Option"+option);		  
+	        	// TO DO:
+	        	try {	        		     		
+        	    	File myObj = new File(Save_info + "/Dialog_"+Save_info2+"/Option"+option+".txt"); 						// try to create Dialog.txt for created character
+        	        if (myObj.createNewFile()) {
+        	        	  FileWriter myWriter = new FileWriter(Save_info + "/Dialog_"+Save_info2+"/Option"+option+".txt");	// if description created crate file writer 
+        	        	  myWriter.write(""+Option1_TextField.getText() + "\n");														// write Dialog Text Area Text to Dialog.txt
+        	        	  
+        	        	  myWriter.write(""+(String)Option1_Character_ComboBox.getSelectedItem() + "\n");
+        	        	  myWriter.write(""+(String)Option1_CharacterDialog_ComboBox.getSelectedItem().toString().substring(7) + "\n");
+        	              myWriter.close();  																				// close File Writer
+        	        } 
+        	      } catch (IOException e1) {
+        	    	  Error.setText("Can't Create And Write to Dialog.txt");	
+        	      
+					return;
+        	      }	    	
+		    	
+		    	Option1_TextField.setText("");
+		    	if(option<4)option++;
+		    	if(option==3) next.setText("End");
+		    	if(option > 3) {
+		    		option = 1;
+		    		next.setText("Next");
+		    		CreateOptionsForDialogFrame.setVisible(false);
+		    		MainFrame.setVisible(true);
+		    	}
+		    	Option1.setText("Option " + option);
+		    }
+		});
+		
+		
+		JButton Cancel = new JButton("end");
+		//Option3_CharacterDialog_ComboBox;
+		
+		Cancel.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {	    
+		    	option = 1;
+	    		next.setText("Next");
+	    		CreateOptionsForDialogFrame.setVisible(false);
+	    		MainFrame.setVisible(true);
+	    		Option1.setText("Option " + option);
+		    }
+		});
+		
+		
+		// Frame Settings
+		CreateOptionsForDialogFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);			// x,y,width,height
+		CreateOptionsForDialogFrame.setBackground(Color.darkGray);						// Background Color
+		CreateOptionsForDialogFrame.setResizable(true);									// Turn off Resize option
+		CreateOptionsForDialogFrame.setVisible(true);									// not Visible on start
+		CreateOptionsForDialogFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		// Default Close operation
+		//Dimension test = CreateOptionsForDialogFrame.getInsets();
+		
+		// Main Panel Settings		
+		MainPanel.setBackground(Color.GRAY);	// Background Color (more important)
+		MainPanel.setVisible(true);				// Visible from start (only when frame is visible)
+		MainPanel.setLayout(null);				// no Layout (i know its shit for big projects, but this one is small enough to make it null)
+		
+		//Title Label Settings
+		Title.setBounds(0, 0,(int)  dim.getWidth(), 20 ); // x,y, width same as screen (its centered vertically), height
+		Title.setVerticalAlignment(JLabel.CENTER);
+		Title.setForeground(Color.WHITE);
+		
+		//Option1 Label Settings
+		Option1.setBounds(0, 40,(int)  dim.getWidth(), 20 ); // x,y, width same as screen (its centered vertically), height
+		Option1.setVerticalAlignment(JLabel.CENTER);
+		Option1.setForeground(Color.WHITE);
+		
+		//Option1 Label Settings
+		Option1Text.setBounds(50, 78, 100, 20 ); // x,y, width same as screen (its centered vertically), height
+		Option1Text.setVerticalAlignment(JLabel.CENTER);
+		Option1Text.setForeground(Color.WHITE);
+		
+		//Option1 Label Settings
+		Option1CharacterText.setBounds(50, 112, 100, 20 ); // x,y, width same as screen (its centered vertically), height
+		Option1CharacterText.setVerticalAlignment(JLabel.CENTER);
+		Option1CharacterText.setForeground(Color.WHITE);
+		//Option1 Label Settings
+		Option1DialogText.setBounds(50, 153, 100, 20 ); // x,y, width same as screen (its centered vertically), height
+		Option1DialogText.setVerticalAlignment(JLabel.CENTER);
+		Option1DialogText.setForeground(Color.WHITE);
+		
+		//Option1 Label Settings
+		Option1Dialog.setBounds(550, 100, (int)  dim.getWidth() - 200, 200 ); // x,y, width same as screen (its centered vertically), height
+		Option1Dialog.setVerticalAlignment(JLabel.CENTER);
+		Option1Dialog.setForeground(Color.WHITE);
+		//Option1 Label Settings
+		DialogOption1.setBounds(550, 400, (int)  dim.getWidth() - 200, 30 ); // x,y, width same as screen (its centered vertically), height
+		DialogOption1.setVerticalAlignment(JLabel.CENTER);
+		DialogOption1.setForeground(Color.WHITE);
+		//Option1 Label Settings
+		DialogOption2.setBounds(550, 450, (int)  dim.getWidth() - 200, 30 ); // x,y, width same as screen (its centered vertically), height
+		DialogOption2.setVerticalAlignment(JLabel.CENTER);
+		DialogOption2.setForeground(Color.WHITE);
+		//Option1 Label Settings
+		DialogOption3.setBounds(550, 500, (int)  dim.getWidth() - 200, 30 ); // x,y, width same as screen (its centered vertically), height
+		DialogOption3.setVerticalAlignment(JLabel.CENTER);
+		DialogOption3.setForeground(Color.WHITE);
+				
+		
+		//Option1 TextField Settings 
+		Option1_TextField.setBounds(200,75,(int)  dim.getWidth() - 450,30);	// x,y,width,height
+		Option1_TextField.setForeground(Color.BLACK);	// Text Color Black
+		
+		// Combo Box Settings
+		Option1_Character_ComboBox.setBounds(200,110,300,30);	// x,y,width,height
+		Option1_CharacterDialog_ComboBox.setBounds(200,150,300,30);
+		
+		next.setBounds((int)  dim.getWidth() - 300, (int)  dim.getHeight() - 300,200,30);
+		Cancel.setBounds(200,(int)  dim.getHeight() - 300, 200,30);
+		
+		MainPanel.add(Option1);
+		MainPanel.add(Option1Text);
+		MainPanel.add(Option1_TextField);
+		MainPanel.add(Option1CharacterText);
+		MainPanel.add(Title);
+		MainPanel.add(Option1_Character_ComboBox);
+		MainPanel.add(Option1_CharacterDialog_ComboBox);
+		MainPanel.add(Option1DialogText);
+		MainPanel.add(Option1Dialog);
+		MainPanel.add(DialogOption1);
+		MainPanel.add(DialogOption2);
+		MainPanel.add(DialogOption3);
+		MainPanel.add(next);
+		MainPanel.add(Cancel);
+		CreateOptionsForDialogFrame.add(MainPanel);
 		// needed option 1, 2, 3 following character and dialog;  
 		// Following character as ComboBox of all characters, dialog as ComboBox of character Dialogs (if possible show Dialog.txt instead of path it will be easier to work with)
 	}
@@ -396,6 +777,7 @@ public class Main implements ActionListener{
 		MainMenu(); 				// start Main Menu
 		Window_CreateCharacter();	// Start Window Create Character
 		Window_CreateDialog();
+		
 	}
 
 	
