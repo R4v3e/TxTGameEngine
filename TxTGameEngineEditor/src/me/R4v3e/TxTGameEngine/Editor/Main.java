@@ -29,12 +29,12 @@ public class Main implements ActionListener{
 	static JFrame CreateCharacterFrame = new JFrame("Create Character");	 // Frame for Character Creating Window
 	static JFrame CreateDialogFrame = new JFrame("Create Dialog");			 // Frame for Dialog Creating Window
 	static JFrame CreateOptionsForDialogFrame = new JFrame("Create Dialog"); // Frame for Creating Options Window
-	
+	static JComboBox<String> Option1_Character_ComboBox = new JComboBox<String>();
 	static String Save_info;
 	static int Save_info2;
 	static String html = "<html><body style='width: %1spx'>%1s"; // needed to set up Word Wrap on Dialog
 	static String txt = "";
-	
+	static JComboBox<File> Characters = new JComboBox<File>();
 	static int option = 1;
 	/*
 	 * Main Menu Window
@@ -89,6 +89,13 @@ public class Main implements ActionListener{
 	    option2.addActionListener(new ActionListener(){  	// button action listener (on button2 click event)
 		    public void actionPerformed(ActionEvent e){  
 	                MainFrame.setVisible(false);			// when button 2 clicked set Main Menu to not visible
+	            	// File array with Characters File 
+	        		File[] directories = new File("MainDialogTree").listFiles(File::isDirectory);	
+	        		Characters.removeAllItems();
+	        		for(int i = 0; i<directories.length; i++) {
+	        			Characters.addItem(directories[i]);
+	        		}
+	               
 	                CreateDialogFrame.setVisible(true);   	// when button 2 clicked set Dialog Creating Window to visible 
 	        }  
 	    });  
@@ -272,9 +279,11 @@ public class Main implements ActionListener{
 		
 		// File array with Characters File 
 		File[] directories = new File("MainDialogTree").listFiles(File::isDirectory);				
-		
+		for(int i = 0; i<directories.length; i++) {
+			Characters.addItem(directories[i]);
+		}
 		// create a combo box with the fixed array:
-		JComboBox<File> Characters = new JComboBox<File>(directories);
+		
 		
 		// Frame Settings
 		CreateDialogFrame.setBounds(1,1 ,600, 500); 							// x,y,width,height
@@ -393,7 +402,28 @@ public class Main implements ActionListener{
         	      }
 	        	 Error.setText("Created: " + selected.getPath() + "/Dialog_"+max + " and Dialog.txt");
         	     // when no error set Add_Options_To_Created_Dialog_Window_Frame to visible and this to not visible.
-	        	 	Add_Options_To_Created_Dialog_Window();	
+	        	 		
+	        		
+	        		File[] Characters = new File("MainDialogTree").listFiles(File::isDirectory);
+	        		
+	        		String[] CharactersNames = new String[Characters.length];
+	        		String name;
+	        		for(int x = 0; x < Characters.length; x++) {
+	        			
+	        		name = Characters[x].getPath();
+	        		name = name.substring(15,name.length());
+	        			
+	        			CharactersNames[x] = name; 
+	        		}		
+	        		
+	        		Option1_Character_ComboBox.removeAllItems();
+	        		for(int i = 0; i<CharactersNames.length; i++) {
+	        			Option1_Character_ComboBox.addItem(CharactersNames[i]);
+	        		}
+	        		Add_Options_To_Created_Dialog_Window();
+	        	 	
+	        	 	
+	        	 	
 	        	 	CreateOptionsForDialogFrame.setVisible(true);
 	        		CreateDialogFrame.setVisible(false);
 	        		DialogTextArea.setText("");
@@ -403,7 +433,7 @@ public class Main implements ActionListener{
 		CreateDialogFrame.add(MainPanel);		
 	
 	}
-	// TO DO NEXT
+
 	public static void Add_Options_To_Created_Dialog_Window() {
 		
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -438,12 +468,15 @@ public class Main implements ActionListener{
 		name = name.substring(15,name.length());
 			
 			CharactersNames[x] = name; 
+		}		
+		
+		Option1_Character_ComboBox.removeAllItems();
+		for(int i = 0; i<CharactersNames.length; i++) {
+			Option1_Character_ComboBox.addItem(CharactersNames[i]);
 		}
 		
+		
 		JTextField Option1_TextField = new JTextField();
-
-		JComboBox<String> Option1_Character_ComboBox = new JComboBox<String>(CharactersNames);
-
 		
 		JComboBox<String> Option1_CharacterDialog_ComboBox = new JComboBox<String>();
 	
@@ -776,7 +809,7 @@ public class Main implements ActionListener{
 		
 		MainMenu(); 				// start Main Menu
 		Window_CreateCharacter();	// Start Window Create Character
-		Window_CreateDialog();
+		 Window_CreateDialog();
 		
 	}
 
