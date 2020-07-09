@@ -1,2 +1,4 @@
 v0.01 can only Create a new Character.
 v0.02 Allow to create Dialog.txt in Character folder. (not allow to create options)  
+v0.03 Allow to Create Options for dialogs
+v0.04 Reapair error that you had to restart editor to see new character.
