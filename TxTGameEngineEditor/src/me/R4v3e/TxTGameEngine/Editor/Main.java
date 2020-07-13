@@ -29,13 +29,20 @@ public class Main implements ActionListener{
 	static JFrame CreateCharacterFrame = new JFrame("Create Character");	 // Frame for Character Creating Window
 	static JFrame CreateDialogFrame = new JFrame("Create Dialog");			 // Frame for Dialog Creating Window
 	static JFrame CreateOptionsForDialogFrame = new JFrame("Create Dialog"); // Frame for Creating Options Window
+	static JFrame EditFrame = new JFrame("Edit");
+	
 	static JComboBox<String> Option1_Character_ComboBox = new JComboBox<String>();
-	static String Save_info;
-	static int Save_info2;
+	static JComboBox<File> Characters = new JComboBox<File>();
+	static JComboBox<File> CharactersList = new JComboBox<File>();
+
+
 	static String html = "<html><body style='width: %1spx'>%1s"; // needed to set up Word Wrap on Dialog
 	static String txt = "";
-	static JComboBox<File> Characters = new JComboBox<File>();
+	
+	static String Save_info;
+	
 	static int option = 1;
+	static int Save_info2;
 	/*
 	 * Main Menu Window
 	 * */
@@ -101,8 +108,16 @@ public class Main implements ActionListener{
 	    });  
 	    option3.addActionListener(new ActionListener(){ 	// button action listener (on button3 click event)
 	    	public void actionPerformed(ActionEvent e){  
-		            MainFrame.setVisible(false);			// when button 3 clicked set Main Menu to not visible
-		            										//
+		            MainFrame.setVisible(false);
+		         // File array with Characters File 
+		         // File array with Characters File 
+		    		File[] directories = new File("MainDialogTree").listFiles(File::isDirectory);
+		    		
+		    		for(int i = 0; i<directories.length; i++) {
+		    			CharactersList.addItem(directories[i]);
+		    		}
+		            EditFrame.setVisible(true);
+		            							//
 		    }  
 		});  
 	    
@@ -499,7 +514,7 @@ public class Main implements ActionListener{
 		Option1_Character_ComboBox.addActionListener (new ActionListener () {
 		    public void actionPerformed(ActionEvent e) {
 		    	Option1_CharacterDialog_ComboBox.removeAllItems();
-		    	String selected = (String)Option1_Character_ComboBox.getSelectedItem();	// you select String you dumb ass   									 
+		    	String selected = (String)Option1_Character_ComboBox.getSelectedItem();										 
 	       						
 		    	String Path = "MainDialogTree/"+selected+"/";
 		    	File[] Dialogs = new File(Path).listFiles(File::isDirectory);
@@ -672,7 +687,7 @@ public class Main implements ActionListener{
 		
 		next.addActionListener (new ActionListener () {
 		    public void actionPerformed(ActionEvent e) {		    
-		    	System.out.println(Save_info + "/Dialog_"+Save_info2+"/Option"+option);		  
+		    	
 	        	// TO DO:
 	        	try {	        		     		
         	    	File myObj = new File(Save_info + "/Dialog_"+Save_info2+"/Option"+option+".txt"); 						// try to create Dialog.txt for created character
@@ -803,13 +818,280 @@ public class Main implements ActionListener{
 		// Following character as ComboBox of all characters, dialog as ComboBox of character Dialogs (if possible show Dialog.txt instead of path it will be easier to work with)
 	}
 	
+	public static void Edit() {
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		
+		
+		JTextArea DialogText = new JTextArea();
+		JTextField Option1 = new JTextField();
+		JTextField Option2 = new JTextField();
+		JTextField Option3 = new JTextField();
+		
+		JComboBox<String> Dialogs = new JComboBox<String>();
+		
+		  	
+    
+		CharactersList.addActionListener (new ActionListener () {
+			
+		    public void actionPerformed(ActionEvent e) {			    	
+		    
+		    	
+		    	Dialogs.removeAllItems();
+		    	File selected = (File)CharactersList.getSelectedItem();										 
+	       					
+		    	String Path = selected.getPath();
+		    	File[] Dialogss = new File(Path).listFiles(File::isDirectory);
+		    	
+		    	String[] DialogsNumbers = new String[Dialogss.length];
+		    	for(int y = 0; y < Dialogss.length; y++) {
+		    		DialogsNumbers[y] = Dialogss[y].getPath().substring(Path.length()+1, Dialogss[y].getPath().length());
+		    	}
+		    	
+		    	
+		    	for(int i = 0; i < DialogsNumbers.length; i++) {
+		    		Dialogs.addItem(DialogsNumbers[i]);
+		    	}		    			    
+		    	
+		    	
+		    }
+		});
+		
+		Dialogs.addActionListener (new ActionListener () {
+			
+		    public void actionPerformed(ActionEvent e) {			    	
+		    
+		    	DialogText.setText(" ");
+		    	String Path = CharactersList.getSelectedItem()+ "/"+Dialogs.getSelectedItem();
+		    			    	
+		    	BufferedReader reader;
+		    	int i = 0;
+				// read Dialog Text
+		    	txt = "";
+				try {
+					reader = new BufferedReader(new FileReader(Path+"/Dialog.txt"));
+					String line = reader.readLine();
+					while (line != null) {				
+						
+						txt = txt + line + " ";					
+					
+						line = reader.readLine();
+					}
+					DialogText.setText(txt);
+					reader.close();
+				} catch (IOException e1) {
+					System.out.println("Error");
+				}
+				txt = "";
+				try {
+					reader = new BufferedReader(new FileReader(Path+"/Option1.txt"));
+					String line = reader.readLine();
+					while (line != null) {				
+						
+						if(i==0)txt = txt + line + " ";					
+						i++;
+						line = reader.readLine();
+					}
+					reader.close();
+					Option1.setText(txt);
+				} catch (IOException e1) {
+				
+				}
+				txt = "";
+				i=0;
+				try {
+					reader = new BufferedReader(new FileReader(Path+"/Option2.txt"));
+					String line = reader.readLine();
+					while (line != null) {				
+						
+						if(i==0)txt = txt + line + " ";					
+						i++;
+						line = reader.readLine();
+					}
+					Option2.setText(txt);
+					reader.close();
+				} catch (IOException e1) {
+				
+				}
+				txt = "";
+				i=0;
+				try {
+					reader = new BufferedReader(new FileReader(Path+"/Option3.txt"));
+					String line = reader.readLine();
+					while (line != null) {				
+						
+						if(i==0)txt = txt + line + " ";					
+						i++;
+						line = reader.readLine();
+					}
+					Option3.setText(txt);
+					reader.close();
+				} catch (IOException e1) {
+				
+				}
+				txt = "";	
+				
+		    	
+		    	
+		    }
+		});
+		
+		
+		JPanel MainPanel = new JPanel();	// Character Creation Main Panel
+		JLabel Test = new JLabel("Edit", JLabel.CENTER);
+		JLabel CharacterLabel = new JLabel("Character: ");
+		JLabel DialogLabel = new JLabel("Dialog: ");
+		JButton Back = new JButton("Back");
+		JButton Save = new JButton("Save");
+		// Character Creation Frame Settings
+		EditFrame.setBounds(1,1 ,(int)dim.getWidth(), (int)dim.getHeight()); 							// x,y,width,height
+		EditFrame.setBackground(Color.darkGray);						// Background Color
+		EditFrame.setResizable(false);								// Turn off Resize option
+		EditFrame.setVisible(false);									// not Visible on start
+		EditFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	// Default close operation
+		
+		
+	
+		
+		// Character Creation Window Panel Settings
+		MainPanel.setBounds(1,1,(int)dim.getWidth(),(int)dim.getHeight());		// x,y,width,height
+		MainPanel.setBackground(Color.GRAY);	// Background Color (more important)
+		MainPanel.setVisible(true);				// Visible from start (only when frame is visible)
+		MainPanel.setLayout(null);				// Set Layout to null (again it work cause small project, better avoid in future)
+		
+		DialogText.setBounds(500,100,(int)dim.getWidth()-650,400);
+		//Title Label Settings
+		Test.setBounds(0, 0,(int)  dim.getWidth(), 75 ); // x,y, width same as screen (its centered vertically), height
+		Test.setFont(Test.getFont().deriveFont(32.0f));
+		Test.setForeground(Color.WHITE);
+		
+		CharacterLabel.setBounds(70,98,100,30);
+		DialogLabel.setBounds(70,148,75,30);
+		
+		CharactersList.setBounds(150, 100, 300, 30);
+		Dialogs.setBounds(150,150,300, 30);
+		
+		Back.setBounds(50,(int)dim.getHeight()-100, 200, 30);
+		Save.setBounds((int)dim.getWidth()-350,(int)dim.getHeight()-100, 200, 30);
+		
+		
+		Option1.setBounds(500,550,(int)dim.getWidth()-650,50);
+		Option2.setBounds(500,650,(int)dim.getWidth()-650,50);
+		Option3.setBounds(500,750,(int)dim.getWidth()-650,50);
+		
+		MainPanel.add(Option1);
+		MainPanel.add(Option2);
+		MainPanel.add(Option3);
+		MainPanel.add(Save);
+		MainPanel.add(DialogText);
+		MainPanel.add(CharacterLabel);
+		MainPanel.add(DialogLabel);
+		MainPanel.add(Test);
+		MainPanel.add(Dialogs);		 
+		MainPanel.add(CharactersList);
+		MainPanel.add(Back);
+		EditFrame.add(MainPanel);	// add Character creation MainPanel to Character Creation Frame 
+		
+		// Menu Button Action Listener
+		
+		// Create Button Action Listener
+		Back.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {	    
+		    	EditFrame.setVisible(false);
+		    	MainFrame.setVisible(true);
+		    }
+		});
+		Save.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {
+		    	BufferedReader reader;
+		    	try {	        		     		
+        	    							// try to create Dialog.txt for created character
+		    		String Path = CharactersList.getSelectedItem()+ "/"+Dialogs.getSelectedItem();
+        	        FileWriter myWriter = new FileWriter(Path+"/Dialog.txt"); 	
+        	        myWriter.write(""+DialogText.getText() + "\n");												
+        	        myWriter.close();  																				
+        	        
+        	      } catch (IOException e1) {
+        	    	
+        	      
+					return;
+        	      }
+		    	String Path = CharactersList.getSelectedItem()+ "/"+Dialogs.getSelectedItem();
+		    	try {					
+				reader = new BufferedReader(new FileReader(Path+"/Option1.txt"));
+				String line = reader.readLine();
+				txt="";
+				int i = 0;
+				while (line != null) {				
+					
+					if(i!=0)txt = txt + line + "\n";					
+					i++;
+					line = reader.readLine();
+				}	
+				reader.close();
+				FileWriter myWriter = new FileWriter(Path+"/Option1.txt"); 	
+				myWriter.write(""+Option1.getText() + "\n" + txt);					
+				myWriter.close();  																				
+				
+				} catch (IOException e1) {
+				
+				
+				return;
+				}
+		    	try {	        		     		
+		    		reader = new BufferedReader(new FileReader(Path+"/Option2.txt"));
+					String line = reader.readLine();
+					txt="";
+					int i = 0;
+					while (line != null) {				
+						
+						if(i!=0)txt = txt + line + "\n";					
+						i++;
+						line = reader.readLine();
+					}	
+					reader.close();
+					FileWriter myWriter = new FileWriter(Path+"/Option2.txt"); 	
+					myWriter.write(""+Option2.getText() + "\n" + txt);					
+					myWriter.close(); 																	
+				} catch (IOException e1) {
+				
+				
+				return;
+				}
+		    	try {	        		     		
+		    		reader = new BufferedReader(new FileReader(Path+"/Option3.txt"));
+					String line = reader.readLine();
+					txt="";
+					int i = 0;
+					while (line != null) {				
+						
+						if(i!=0)txt = txt + line + "\n";					
+						i++;
+						line = reader.readLine();
+					}	
+					reader.close();
+					FileWriter myWriter = new FileWriter(Path+"/Option3.txt"); 	
+					myWriter.write(""+Option3.getText() + "\n" + txt);					
+					myWriter.close(); 																	
+				} catch (IOException e1) {
+				
+				
+				return;
+				}
+		    }
+		    
+		});
+		
+	}
+	
+	
 	
 	
 	public static void main(String[] args) {
-		
+	
 		MainMenu(); 				// start Main Menu
 		Window_CreateCharacter();	// Start Window Create Character
-		 Window_CreateDialog();
+		Window_CreateDialog();
+		Edit();
 		
 	}
 
