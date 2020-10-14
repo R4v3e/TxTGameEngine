@@ -1,19 +1,55 @@
 package txTGameEngine;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class Main {
 	
+	static Color CharacterNameColor = Color.RED; // set color for Character Name
+	static Color DialogColor = Color.white; // set Dialog Text Color
+	
+	//program will red items below from a Settings document(To Add in the future)
+	static String BackgroundImagePath = "./MainDialogTree/Background"+"/bg.jpg";
+	
+	public static ImageIcon scaleImage(ImageIcon icon, int w, int h)
+    {
+        int nw = w;
+        int nh = h;    
+
+        return new ImageIcon(icon.getImage().getScaledInstance(nw, nh, Image.SCALE_DEFAULT));
+    }
+	public static ImageIcon scaleCharacterImage(ImageIcon icon, int w, int h)
+    {
+        int nw = (int)icon.getIconWidth();
+        int nh = (int)icon.getIconHeight();
+
+       if(icon.getIconWidth() > w)
+        {
+          nw = w;
+          nh = (nw * icon.getIconHeight()) / icon.getIconWidth();
+          
+        }
+
+        if(icon.getIconHeight() > h)
+        {
+          nh = h;
+          nw = (icon.getIconWidth() * nh) / icon.getIconHeight();          
+        }
+
+        return new ImageIcon(icon.getImage().getScaledInstance(nw, nh, Image.SCALE_DEFAULT));
+    }
 	/* IMPORTANT
 	 * Applications made for Linux
 	 * paths to folders are specially set just for it
@@ -31,9 +67,8 @@ public class Main {
 				 * in second line character that should be next after picking option
 				 * in third line dialog number that should be next after this option
 			 * 
-	 */
-	
-	
+	 */	
+		
 	static JLabel name = new JLabel("", JLabel.CENTER); // character name Label
 	static JLabel dialogText = new JLabel("",JLabel.CENTER); // character Dialog Label
 	static JLabel characterImage = new JLabel("",JLabel.CENTER); // character Image Label
@@ -57,7 +92,7 @@ public class Main {
 	static Character character = new Character(); // set up new character (useless, just string name would be better)
 	static String iconPath = "./MainDialogTree/"+_Character_Speaking+"/image.jpg"; // path to active character icon (standard 70 x 80)
 	
-	
+		
 	public static void read(String path_Option, String path_Dialog) {
 		iconPath = "./MainDialogTree/"+_Character_Speaking+"/image.jpg"; // get active character icon
 		
@@ -99,8 +134,7 @@ public class Main {
 					}
 					if(i%3 == 0) {									
 						OptionDialog[x-1] = line; // read option x dialog number
-					}
-					
+					}					
 					// read next line
 					line = reader.readLine();
 				}
@@ -112,31 +146,49 @@ public class Main {
 	}
 	
 	static void Show() {
-		characterImage.setIcon(new ImageIcon(iconPath)); // show character icon
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		characterImage.setIcon(scaleCharacterImage(new ImageIcon(iconPath), (int)200, (int)200)); // show character icon
 		option1.setText(OptionTxT[0]); // show Option 1 text
 		option2.setText(OptionTxT[1]); // show Option 2 text
 		option3.setText(OptionTxT[2]); // show Option 3 text
 		name.setText(character.Name); // show active character name
-		dialogText.setText(	String.format(html,560,txt)); // show dialog text		
+		name.setForeground(CharacterNameColor);
+		dialogText.setText(	String.format(html,(int)dim.getWidth()-700,txt)); // show dialog text	
+		dialogText.setForeground(DialogColor);
 	}
 	
 	public static void game() {
+		
+		
 		read(_Option_Path,_Dialog_Path); // read standard items
-
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		
+		JPanel MainPanel = new JPanel();
+		JPanel MainPanelBackground = new JPanel();
+		
 		JFrame Window = new JFrame(); // set new window 
 		
+		
+		JLabel thumb = new JLabel("",JLabel.CENTER);
+		ImageIcon imgThisImg = new ImageIcon(BackgroundImagePath);
+		ImageIcon ScaledImageIcon = scaleImage(imgThisImg, (int)dim.getWidth(), (int)dim.getHeight());
+		
+				
 		// window settings
-		Window.setBounds(10,10 ,900, 320); 
-		Window.setBackground(Color.darkGray);
+		Window.setBounds(1,1 ,(int)dim.getWidth(), (int)dim.getHeight()); 
+		thumb.setBounds(0,0 ,(int)dim.getWidth(), (int)dim.getHeight());		
+		thumb.setIcon(ScaledImageIcon);
+		
+		MainPanel.setBounds(0, 0,(int)dim.getWidth(), (int)dim.getHeight());
+		MainPanel.setBackground(null);
+		
+		MainPanelBackground.setBackground(Color.GREEN);
+		MainPanelBackground.setBounds(1,1 ,(int)dim.getWidth(), (int)dim.getHeight()); 
+						
 		Window.setResizable(false);
 		Window.setVisible(true);		
 		Window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
-		
-		
-		
-	
-		
-		
+				
 		// buttons actions
 		option1.addActionListener(new ActionListener() {
 			@Override
@@ -173,41 +225,41 @@ public class Main {
 				read(_Option_Path,_Dialog_Path);
 				Show();
 			}   
-		});
-		
-		Show();
+		});	
+		Show();	
 		
 		// set options x y width height
-		option1.setBounds(120,220,750,20);
-		option2.setBounds(120,250,750,20);
-		option3.setBounds(120,280,750,20);
+		option1.setBounds(220,(int)dim.getHeight()-160,(int)dim.getWidth()-320,20);
+		option2.setBounds(220,(int)dim.getHeight()-130,(int)dim.getWidth()-320,20);
+		option3.setBounds(220,(int)dim.getHeight()-100,(int)dim.getWidth()-320,20);
 		
 		// set character image x y width height alignment
-		characterImage.setBounds(10,70,100,80);
+		characterImage.setBounds(5,70,200,200);
 		characterImage.setVerticalAlignment(JLabel.TOP);
 		
 		// set name x y width height alignment
-		name.setBounds(10,10,100,50);
+		name.setBounds(5,10,200,50);
 		name.setVerticalAlignment(JLabel.TOP);
 		
 		// set dialog x y width height alignment		
-		dialogText.setBounds(120,10,750,200);
+		dialogText.setBounds(220,10,(int)dim.getWidth()-320,(int)dim.getHeight()-200);
+		//JScrollPane scroller = new JScrollPane(dialogText);
 		dialogText.setVerticalAlignment(JLabel.TOP);
 		
 		// add items to window
-		Window.setLayout(null);
-		Window.add(name);
-		Window.add(dialogText);
-		Window.add(option1);
-		Window.add(option2);
-		Window.add(option3);
-		Window.add(characterImage);
-	     
+		MainPanel.setLayout(null);
+		thumb.setLayout(null);
+		MainPanelBackground.setLayout(null);
+		MainPanel.add(name);	
+		MainPanel.add(dialogText);
+		MainPanel.add(option1);
+		MainPanel.add(option2);
+		MainPanel.add(option3);
+		MainPanel.add(characterImage);
+		MainPanel.add(thumb);
+		MainPanelBackground.add(MainPanel);
 		
-		
-		
-		
-		
+		Window.add(MainPanelBackground);
 	}
 	
 	
@@ -217,5 +269,7 @@ public class Main {
 		game();
 		
 	}
+	
+	
 
 }
