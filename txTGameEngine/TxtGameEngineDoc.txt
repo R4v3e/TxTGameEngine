@@ -1,0 +1,6 @@
+new futures:
+  * New upgraded GUI.
+  * settable background.
+  * saving location after pressing esc.
+  * continue from saved location.
+  * Windows support.
